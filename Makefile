@@ -1,4 +1,9 @@
-NAME := template
+ifeq ($(HOSTTYPE),)
+	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
+endif
+
+NAME := libft_template_$(HOSTTYPE).so
+LIB_NAME := libft_template.so
 
 INCS := include
 
@@ -8,7 +13,7 @@ LDLIBS :=
 SRC_DIR := src
 BUILD_DIR := .build
 
-SRCS := main.c
+SRCS := ft_putchar.c
 
 OBJS := $(SRCS:%.c=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
@@ -33,19 +38,20 @@ thread: re
 print-%: ; @echo $* = $($*)
 
 $(NAME): $(BUILD_DIR) $(OBJS)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS) $(LDLIBS)
+	$(CC) $(CFLAGS) -shared $(CPPFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS) $(LDLIBS)
+	ln -sf ./$(NAME) ./$(LIB_NAME)
 
 $(BUILD_DIR):
 	@test -d $@ || mkdir -p $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -fPIC $(CPPFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(BUILD_DIR)
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) $(LIB_NAME)
 
 re: fclean all
 
